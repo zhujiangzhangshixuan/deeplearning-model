@@ -1,0 +1,145 @@
+\documentclass[UTF8]{ctexart}
+\usepackage[textwidth=444bp,vmargin=2.5cm]{geometry}
+%\usepackage{abstract} %生成摘要使用的宏包
+\usepackage[colorlinks,linkcolor=black,anchorcolor=black,citecolor=black]{hyperref} %“colorlinks”的意思是将超链接以颜色来标识，而并非使用默认的方框来标识。linkcolor，anchorcolor, citecolor分别表示用来标识link, anchor, cite等各种链接的颜色。此处我们均设为黑色。
+\usepackage{fancyhdr} %插入页脚的宏包
+\usepackage{graphicx}%图片宏包
+\usepackage{float}
+\graphicspath{{./figure/}}
+\DeclareGraphicsExtensions{.pdf,.jpeg,.png,.jpg}%在添加图片后只需要图片的名字，而不需要拓展名
+\usepackage{subfigure}%并列插入图片
+\usepackage{amsmath}%公式宏包
+\usepackage[T1]{fontenc}% 统一修改正文和数学字体为Adobe Utopia， 这个字体和Times有些像
+\usepackage{newtxtext, newtxmath}  %两种使用Times New Roman 字体的方法
+\linespread{1.5}%设置行间距为1.5倍行距
+\renewcommand{\abstractname}{\Large\textbf{摘要}}
+\usepackage{appendix}%加入附录需使用appendix宏包
+\usepackage{listings}%插入代码
+\usepackage{xcolor}
+
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{makecell}
+\usepackage{bm}
+\usepackage{pythonhighlight}
+\usepackage{ctex}
+\usepackage[linesnumbered,ruled]{algorithm2e}
+\ctexset{
+	% 修改 section。
+	section={   
+		name={,、},
+		number={\chinese{section}}
+	}
+}
+\ctexset{
+	% 修改 section。
+	section={   
+		name={,、},
+		number={\chinese{section}},
+		aftername=\hspace{1pt}
+	}
+}
+\usepackage{enumitem}
+\usepackage{tabularx}
+%\usepackage{setspace}%使用间距宏包
+
+\begin{document}    %文档的开始，一定要有文档的结束，才能生效
+	\setlength{\abovedisplayskip}{2pt}
+	\setlength{\belowdisplayskip}{2pt}
+	\setlength{\abovedisplayshortskip}{2pt}
+	\setlength{\belowdisplayshortskip}{2pt}
+	%------------------------标题-------------------------
+	%\begin{titlepage}%使页码跳过这页
+	\begin{center}
+		\heiti\zihao{3}\textbf{3.5 \, 图像分类数据集重点摘录与练习解答} %标题3号加粗
+		\vspace{2ex}
+	\end{center}
+	
+	
+	%\end{titlepage}
+	%-------------------------正文部分-------------------------
+	%修改页眉页脚
+	\pagestyle{fancy}
+	\lhead{}
+	\chead{}
+	\rhead{}
+	%\lfoot{}
+	\cfoot{\thepage}
+	%\rfoot{} %空格即表示空白
+	\renewcommand{\headrulewidth}{0pt}
+	\renewcommand{\footrulewidth}{0pt} %设置页眉页脚分割线的宽度，如果为0pt,则不显示线条
+
+	
+	\textbf{问题解答}
+	
+	\textbf{1、减少batch\_size（如减少到1）是否会影响读取性能？}
+	
+	\noindent \textbf{解}：较大的 batch\_size 可以利用并行化操作来提高数据加载的效率。在读取数据时，可以同时加载多个样本到内存中，以减少磁盘读取数据的时间。而当 batch\_size 减少到1时，无法利用并行化操作，每次只能加载一个样本，从而导致数据加载的效率降低。
+	
+	此外，较小的 batch\_size 也会带来更多的数据加载次数。数据加载在计算机中属于 I/O 操作，通常是相对较慢的。因此，较小的 batch\_size 会导致更频繁的数据加载操作，增加了整体的读取时间。
+	
+	然而，较小的 batch\_size 也具有一些优点，比如更快的模型更新和更精确的梯度估计。因此，在选择 batch\_size 时，需要综合考虑性能和模型训练的需求，权衡不同因素。\\
+	
+	\textbf{2、数据迭代器的性能非常重要。当前的实现足够快吗？探索各种选择来改进它}
+	
+	\noindent \textbf{解}：
+	\begin{itemize}
+		\item 使用 pin\_memory=True：在创建数据加载器时，设置 pin\_memory=True 来将数据加载到 GPU 内存中，利用GPU的并行性来加快数据传输速度。
+		\item 使用多个 get\_dataloader\_workers：通过增加 get\_dataloader\_workers 参数的值，可以使用多个子进程或线程来并行读取数据，从而加快数据加载的速度。可以根据计算机的硬件配置和数据加载的需求，选择合适的 get\_dataloader\_workers 值。\\
+	\end{itemize}
+	
+	
+	\textbf{5、查阅框架的在线API文档。还有哪些其他数据集可用？}
+	
+	%正文中引用到参考文献的地方\cite{01} \cite{02}
+	%-------------------------附录部分-------------------------
+	% 使用\begin{appendices} \end{appendices} 或者直接用\appendix
+	\appendix
+	%代码格式设置,代码的设置与具体的编程语言有关，比赛时上网搜素即可
+	\definecolor{dkgreen}{rgb}{0,0.6,0}
+	\definecolor{gray}{rgb}{0.5,0.5,0.5}
+	\definecolor{mauve}{rgb}{0.58,0,0.82}
+	\definecolor{mydarkblue}{RGB}{0, 0, 128} % 示例：深蓝色，RGB值为(0, 0, 128) 
+	\definecolor{codegreen}{rgb}{0,0.6,0}
+	\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+	\definecolor{codepurple}{rgb}{0.58,0,0.82}
+	\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+	\lstset{ %
+		language=Python,                % the language of the code
+		basicstyle=\footnotesize,           % the size of the fonts that are used for the code
+		numbers=left,                   % where to put the line-numbers
+		numberstyle=\tiny\color{gray},  % the style that is used for the line-numbers
+		stepnumber=2,                   % the step between two line-numbers. If it's 1, each line 
+		% will be numbered
+		numbersep=5pt,                  % how far the line-numbers are from the code
+		backgroundcolor=\color{white},      % choose the background color. You must add \usepackage{color}
+		showspaces=false,               % show spaces adding particular underscores
+		showstringspaces=false,         % underline spaces within strings
+		showtabs=false,                 % show tabs within strings adding particular underscores
+		frame=single,                   % adds a frame around the code
+		rulecolor=\color{black},        % if not set, the frame-color may be changed on line-breaks within not-black text (e.g. commens (green here))
+		tabsize=2,                      % sets default tabsize to 2 spaces
+		captionpos=b,                   % sets the caption-position to bottom
+		breaklines=true,                % sets automatic line breaking
+		breakatwhitespace=false,        % sets if automatic breaks should only happen at whitespace
+		title=\lstname,                   % show the filename of files included with \lstinputlisting;
+		% also try caption instead of title
+		keywordstyle=\color{blue},          % keyword style
+		commentstyle=\color{codegreen},       % comment style
+		stringstyle=\color{codepurple},         % string literal style
+		escapeinside={\%*}{*)},            % if you want to add LaTeX within your code
+		morekeywords={*,...}               % if you want to add more keywords to the set
+	}
+	
+	
+	\noindent \textbf{解：} 
+	
+	\begin{lstlisting}
+		dir(torchvision.datasets)
+	\end{lstlisting}
+	
+	
+	
+\end{document}

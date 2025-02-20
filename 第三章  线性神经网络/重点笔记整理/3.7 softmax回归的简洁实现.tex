@@ -1,0 +1,162 @@
+\documentclass[UTF8]{ctexart}
+\usepackage[textwidth=444bp,vmargin=2.5cm]{geometry}
+%\usepackage{abstract} %生成摘要使用的宏包
+\usepackage[colorlinks,linkcolor=black,anchorcolor=black,citecolor=black]{hyperref} %“colorlinks”的意思是将超链接以颜色来标识，而并非使用默认的方框来标识。linkcolor，anchorcolor, citecolor分别表示用来标识link, anchor, cite等各种链接的颜色。此处我们均设为黑色。
+\usepackage{fancyhdr} %插入页脚的宏包
+\usepackage{graphicx}%图片宏包
+\usepackage{float}
+\graphicspath{{./figure/}}
+\DeclareGraphicsExtensions{.pdf,.jpeg,.png,.jpg}%在添加图片后只需要图片的名字，而不需要拓展名
+\usepackage{subfigure}%并列插入图片
+\usepackage{amsmath}%公式宏包
+\usepackage[T1]{fontenc}% 统一修改正文和数学字体为Adobe Utopia， 这个字体和Times有些像
+\usepackage{newtxtext, newtxmath}  %两种使用Times New Roman 字体的方法
+\linespread{1.5}%设置行间距为1.5倍行距
+\renewcommand{\abstractname}{\Large\textbf{摘要}}
+\usepackage{appendix}%加入附录需使用appendix宏包
+\usepackage{listings}%插入代码
+\usepackage{xcolor}
+
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{makecell}
+\usepackage{bm}
+\usepackage{pythonhighlight}
+\usepackage{ctex}
+\usepackage[linesnumbered,ruled]{algorithm2e}
+\ctexset{
+	% 修改 section。
+	section={   
+		name={,、},
+		number={\chinese{section}}
+	}
+}
+\ctexset{
+	% 修改 section。
+	section={   
+		name={,、},
+		number={\chinese{section}},
+		aftername=\hspace{1pt}
+	}
+}
+\usepackage{enumitem}
+\usepackage{tabularx}
+%\usepackage{setspace}%使用间距宏包
+
+\begin{document}    %文档的开始，一定要有文档的结束，才能生效
+	\setlength{\abovedisplayskip}{2pt}
+	\setlength{\belowdisplayskip}{2pt}
+	\setlength{\abovedisplayshortskip}{2pt}
+	\setlength{\belowdisplayshortskip}{2pt}
+	%------------------------标题-------------------------
+	%\begin{titlepage}%使页码跳过这页
+	\begin{center}
+		\heiti\zihao{3}\textbf{3.7 \, softmax回归的简洁实现重点摘录与练习解答} %标题3号加粗
+		\vspace{2ex}
+	\end{center}
+	
+	
+	%\end{titlepage}
+	%-------------------------正文部分-------------------------
+	%修改页眉页脚
+	\pagestyle{fancy}
+	\lhead{}
+	\chead{}
+	\rhead{}
+	%\lfoot{}
+	\cfoot{\thepage}
+	%\rfoot{} %空格即表示空白
+	\renewcommand{\headrulewidth}{0pt}
+	\renewcommand{\footrulewidth}{0pt} %设置页眉页脚分割线的宽度，如果为0pt,则不显示线条
+	
+	
+	%正文中引用到参考文献的地方\cite{01} \cite{02}
+	%-------------------------附录部分-------------------------
+	% 使用\begin{appendices} \end{appendices} 或者直接用\appendix
+	\appendix
+	%代码格式设置,代码的设置与具体的编程语言有关，比赛时上网搜素即可
+	\definecolor{dkgreen}{rgb}{0,0.6,0}
+	\definecolor{gray}{rgb}{0.5,0.5,0.5}
+	\definecolor{mauve}{rgb}{0.58,0,0.82}
+	\definecolor{mydarkblue}{RGB}{0, 0, 128} % 示例：深蓝色，RGB值为(0, 0, 128) 
+	\definecolor{codegreen}{rgb}{0,0.6,0}
+	\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+	\definecolor{codepurple}{rgb}{0.58,0,0.82}
+	\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+	\lstset{ %
+		language=Python,                % the language of the code
+		basicstyle=\footnotesize,           % the size of the fonts that are used for the code
+		numbers=left,                   % where to put the line-numbers
+		numberstyle=\tiny\color{gray},  % the style that is used for the line-numbers
+		stepnumber=2,                   % the step between two line-numbers. If it's 1, each line 
+		% will be numbered
+		numbersep=5pt,                  % how far the line-numbers are from the code
+		backgroundcolor=\color{white},      % choose the background color. You must add \usepackage{color}
+		showspaces=false,               % show spaces adding particular underscores
+		showstringspaces=false,         % underline spaces within strings
+		showtabs=false,                 % show tabs within strings adding particular underscores
+		frame=single,                   % adds a frame around the code
+		rulecolor=\color{black},        % if not set, the frame-color may be changed on line-breaks within not-black text (e.g. commens (green here))
+		tabsize=2,                      % sets default tabsize to 2 spaces
+		captionpos=b,                   % sets the caption-position to bottom
+		breaklines=true,                % sets automatic line breaking
+		breakatwhitespace=false,        % sets if automatic breaks should only happen at whitespace
+		title=\lstname,                   % show the filename of files included with \lstinputlisting;
+		% also try caption instead of title
+		keywordstyle=\color{blue},          % keyword style
+		commentstyle=\color{codegreen},       % comment style
+		stringstyle=\color{codepurple},         % string literal style
+		escapeinside={\%*}{*)},            % if you want to add LaTeX within your code
+		morekeywords={*,...}               % if you want to add more keywords to the set
+	}
+	
+	\textbf{（1） softmax 函数的改进}
+	
+	在前面的交叉熵计算中，从数学上讲，这是合理的。然而，从数值计算的角度来看，指数可能会造成数值稳定性问题。
+	
+	根据前文定义，softmax函数 $\hat{y}_j = \frac{\exp(o_j)}{\sum_k \exp(o_k)}$，其中 $\hat{y}_j$ 是预测的概率分布，$o_j$ 是未规范化的预测 $\bm{o}$ 的第 $j$ 个元素。如果 $o_k$ 中的一些数值非常大，那么 $\exp(o_k)$ 可能大于数据类型容许的最大数字，即上溢（overflow）。这将使分母或分子变为 inf（无穷大），最后得到的是 0、inf 或 nan（不是数字）的 $\hat{y}_j$。在这些情况下，我们无法得到一个明确定义的交叉熵值。
+	
+	解决这个问题的一个技巧是：在继续 softmax 计算之前，先从所有 $o_k$ 中减去 $\max(o_k)$。这里可以看到每个 $o_k$ 按常数进行的移动不会改变 softmax 的返回值：
+	\begin{eqnarray*}
+		\hat{y}_j &=& \frac{\exp(o_j - \max(o_k)) \exp(\max(o_k))}{\sum_k \exp(o_k - \max(o_k)) \exp(\max(o_k))}\\
+		&=& \frac{\exp(o_j - \max(o_k))}{\sum_k \exp(o_k - \max(o_k))}.
+	\end{eqnarray*}
+
+	在减法和规范化步骤之后，可能有些 $o_j - \max(o_k)$ 具有较大的负值。由于精度受限，$\exp(o_j - \max(o_k))$ 将有接近零的值，即下溢（underflow）。这些值可能会四舍五入为零，使 $\hat{y}_j$ 为零，并且使得 $\log(\hat{y}_j)$ 的值为 -inf。反向传播几步后，可能会出现可怕的 nan 结果。
+	
+	尽管我们要计算指数函数，但我们最终在计算交叉熵损失时会取它们的对数。通过将 softmax 和交叉熵结合在一起，可以避免反向传播过程中可能会困扰我们的数值稳定性问题。如下面的等式所示，我们避免计算 $\exp(o_j - \max(o_k))$，而可以直接使用 $o_j - \max(o_k)$，因为 $\log(\exp(\cdot))$ 被抵消了。
+	\begin{eqnarray*}
+		\log(\hat{y}_j) &=& \log\left(\frac{\exp(o_j - \max(o_k))}{\sum_k \exp(o_k - \max(o_k))}\right)\\
+		&=& \log\left(\exp(o_j - \max(o_k))\right) - \log\left(\sum_k \exp(o_k - \max(o_k))\right)\\
+		&=& o_j - \max(o_k) - \log\left(\sum_k \exp(o_k - \max(o_k))\right).
+	\end{eqnarray*}
+	
+	
+	我们也希望保留传统的 softmax 函数，以备我们需要评估通过模型输出的概率。但是，我们没有将 softmax 概率传递到损失函数中，而是在交叉熵损失函数中传递未规范化的预测，并同时计算 softmax 及其对数。
+	
+	\newpage
+	\textbf{（2） 问题解答}
+	
+	\textbf{2、增加迭代周期的数量。为什么测试精度会在一段时间后降低？我们怎么解决这个问题？}
+	
+	\noindent \textbf{解}：因为样本复杂度小于模型复杂度，出现过拟合导致的。
+	
+	随着迭代周期的数量增加，模型不断去接近样本规律，但到了某一迭代次数后，模型表达能力过剩，会去学习一些只能满足训练样本的非共性特征，即过拟合，从而降低模型的泛化能力，导致测试精度降低。
+	
+	可以通过以下方法解决：
+	
+	1）数据增强（Data Augmentation）：通过对训练数据进行各种随机变换（如旋转、平移、缩放、翻转等），扩增训练数据的多样性，可以降低过拟合风险。
+	
+	2）正则化（Regularization）：通过在损失函数中引入正则化项（如L1正则化、L2正则化），限制模型参数的大小，防止模型过于复杂而出现过拟合。
+	
+	3）早停（Early Stopping）：在训练过程中监控验证集的性能，当验证集性能不再提升时，停止训练，避免过拟合。
+	
+	4）Dropout：通过在训练过程中随机将一部分神经元的输出置为0，来减少神经元之间的依赖关系，降低过拟合。
+	
+	5）模型复杂度调整：减少模型的复杂度，可以通过减少网络层数、减少神经元个数等方式，降低过拟合风险。
+	
+	6）数据集分割：合理划分训练集、验证集和测试集，用于模型的训练、调参和评估，以确保模型在未知数据上的泛化能力
+	
+\end{document}

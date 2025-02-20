@@ -1,0 +1,171 @@
+\documentclass[UTF8]{ctexart}
+\usepackage[textwidth=444bp,vmargin=2.5cm]{geometry}
+%\usepackage{abstract} %生成摘要使用的宏包
+\usepackage[colorlinks,linkcolor=black,anchorcolor=black,citecolor=black]{hyperref} %“colorlinks”的意思是将超链接以颜色来标识，而并非使用默认的方框来标识。linkcolor，anchorcolor, citecolor分别表示用来标识link, anchor, cite等各种链接的颜色。此处我们均设为黑色。
+\usepackage{fancyhdr} %插入页脚的宏包
+\usepackage{graphicx}%图片宏包
+\usepackage{float}
+\graphicspath{{./figure/}}
+\DeclareGraphicsExtensions{.pdf,.jpeg,.png,.jpg}%在添加图片后只需要图片的名字，而不需要拓展名
+\usepackage{subfigure}%并列插入图片
+\usepackage{amsmath}%公式宏包
+\usepackage[T1]{fontenc}% 统一修改正文和数学字体为Adobe Utopia， 这个字体和Times有些像
+\usepackage{newtxtext, newtxmath}  %两种使用Times New Roman 字体的方法
+\linespread{1.5}%设置行间距为1.5倍行距
+\renewcommand{\abstractname}{\Large\textbf{摘要}}
+\usepackage{appendix}%加入附录需使用appendix宏包
+\usepackage{listings}%插入代码
+\usepackage{xcolor}
+
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{makecell}
+\usepackage{bm}
+\usepackage{pythonhighlight}
+\usepackage{ctex}
+\usepackage[linesnumbered,ruled]{algorithm2e}
+\ctexset{
+	% 修改 section。
+	section={   
+		name={,、},
+		number={\chinese{section}}
+	}
+}
+\ctexset{
+	% 修改 section。
+	section={   
+		name={,、},
+		number={\chinese{section}},
+		aftername=\hspace{1pt}
+	}
+}
+\usepackage{enumitem}
+\usepackage{tabularx}
+%\usepackage{setspace}%使用间距宏包
+
+\begin{document}    %文档的开始，一定要有文档的结束，才能生效
+	\setlength{\abovedisplayskip}{2pt}
+	\setlength{\belowdisplayskip}{2pt}
+	\setlength{\abovedisplayshortskip}{2pt}
+	\setlength{\belowdisplayshortskip}{2pt}
+	%------------------------标题-------------------------
+	%\begin{titlepage}%使页码跳过这页
+	\begin{center}
+		\heiti\zihao{3}\textbf{3.6 \, softmax回归的从零开始重点摘录与练习解答} %标题3号加粗
+		\vspace{2ex}
+	\end{center}
+	
+	
+	%\end{titlepage}
+	%-------------------------正文部分-------------------------
+	%修改页眉页脚
+	\pagestyle{fancy}
+	\lhead{}
+	\chead{}
+	\rhead{}
+	%\lfoot{}
+	\cfoot{\thepage}
+	%\rfoot{} %空格即表示空白
+	\renewcommand{\headrulewidth}{0pt}
+	\renewcommand{\footrulewidth}{0pt} %设置页眉页脚分割线的宽度，如果为0pt,则不显示线条
+	
+	
+	%正文中引用到参考文献的地方\cite{01} \cite{02}
+	%-------------------------附录部分-------------------------
+	% 使用\begin{appendices} \end{appendices} 或者直接用\appendix
+	\appendix
+	%代码格式设置,代码的设置与具体的编程语言有关，比赛时上网搜素即可
+	\definecolor{dkgreen}{rgb}{0,0.6,0}
+	\definecolor{gray}{rgb}{0.5,0.5,0.5}
+	\definecolor{mauve}{rgb}{0.58,0,0.82}
+	\definecolor{mydarkblue}{RGB}{0, 0, 128} % 示例：深蓝色，RGB值为(0, 0, 128) 
+	\definecolor{codegreen}{rgb}{0,0.6,0}
+	\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+	\definecolor{codepurple}{rgb}{0.58,0,0.82}
+	\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+	\lstset{ %
+		language=Python,                % the language of the code
+		basicstyle=\footnotesize,           % the size of the fonts that are used for the code
+		numbers=left,                   % where to put the line-numbers
+		numberstyle=\tiny\color{gray},  % the style that is used for the line-numbers
+		stepnumber=2,                   % the step between two line-numbers. If it's 1, each line 
+		% will be numbered
+		numbersep=5pt,                  % how far the line-numbers are from the code
+		backgroundcolor=\color{white},      % choose the background color. You must add \usepackage{color}
+		showspaces=false,               % show spaces adding particular underscores
+		showstringspaces=false,         % underline spaces within strings
+		showtabs=false,                 % show tabs within strings adding particular underscores
+		frame=single,                   % adds a frame around the code
+		rulecolor=\color{black},        % if not set, the frame-color may be changed on line-breaks within not-black text (e.g. commens (green here))
+		tabsize=2,                      % sets default tabsize to 2 spaces
+		captionpos=b,                   % sets the caption-position to bottom
+		breaklines=true,                % sets automatic line breaking
+		breakatwhitespace=false,        % sets if automatic breaks should only happen at whitespace
+		title=\lstname,                   % show the filename of files included with \lstinputlisting;
+		% also try caption instead of title
+		keywordstyle=\color{blue},          % keyword style
+		commentstyle=\color{codegreen},       % comment style
+		stringstyle=\color{codepurple},         % string literal style
+		escapeinside={\%*}{*)},            % if you want to add LaTeX within your code
+		morekeywords={*,...}               % if you want to add more keywords to the set
+	}
+	
+	
+	\textbf{问题解答}
+	
+	\textbf{1、本节直接实现了基于数学定义 softmax 运算的 softmax 函数。这可能会导致什么问题？提示：尝试计算 $e^{50}$ 的大小}
+	
+	\noindent \textbf{解}：当输入向量中的元素较大时，exp 计算可能会出现数值溢出 (无穷大，NAN) 的问题；
+	
+	而当输入向量中的元素较小时，exp 计算可能会出现数值下溢（分母为0）的问题。\\
+	
+	\textbf{2、本节中的函数cross\_entropy是根据交叉熵损失函数的定义实现的。它可能有什么问题？提示：考虑对数的定义域。}
+	
+	\noindent \textbf{解}：当预测标签向量中的元素接近0时，$\log$ 计算可能会出现数值溢出 (无穷大，NAN) 的问题。\\
+	
+	\textbf{3、请想一个解决方案来解决上述两个问题。}
+	
+	\noindent \textbf{解}：对于第一问题，处理方法如下：
+	
+	采用减去最大值操作使得 $\exp$ 计算的最大输入为 0，排除了数值溢出的可能性，即令
+	\[
+	\bm{Z} = \bm{O} - \max(o_i)
+	\]
+	
+	则
+	\[
+	\text{softmax}(\bm{Z}) = \frac{\exp(z_j)}{\sum_{k=1}^q \exp(z_k)}
+	\]
+	
+	同时使得分母 $\geq 1$ ($\exp(0) = 1$)，排除了分母数值下溢导致被零除的可能。
+	
+	对于第二个问题的处理方法如下：
+	
+	采用减去最大值操作使得交叉熵损失计算的最大输入为 $(\min(o_j) - \max(o_i))$，不会超出数据类型容许的最大数字，排除了数值溢出的可能性。
+	\[
+	l(y^{(i)}, \hat{y}^{(i)}) = -\log \hat{y}_j = -\log \frac{\exp(z_j)}{\sum_{k=1}^q \exp(z_k)} = \log \sum_{k=1}^q \exp(z_k) - z_j
+	\]\\
+	
+	\textbf{4、返回概率最大的分类标签总是最优解吗？例如，医疗诊断场景下可以这样做吗？}
+	
+	\noindent \textbf{解}：返回概率最大的分类标签并不总是最优解。
+	
+	概率最大的分类标签只是基于模型的预测结果，可能存在误差。模型的预测结果可能受到多种因素的影响，如数据质量、特征选择、模型选择等。因此，仅仅依靠概率最大的分类标签可能会导致错误的判断。
+	
+	在医疗诊断等领域，决策可能需要综合考虑多个因素，如患者的病史、症状、实验室检查结果等。仅仅依靠概率最大的分类标签可能无法充分考虑这些因素，导致不准确的诊断结果。概率最大的分类标签可以作为参考，但不能作为唯一的依据。\\
+	
+	\textbf{5、假设我们使用 softmax 回归来预测下一个单词，可选取的单词数目过多可能会带来哪些问题?}
+	
+	\noindent \textbf{解}：1）计算复杂度增加：softmax 回归的计算复杂度与可选取的单词数目成正比。当可选取的单词数目过多时，计算 softmax 函数的指数项和可能会变得非常耗时，导致模型训练和推理的效率下降。
+	
+	2）参数空间增大：softmax 回归的参数矩阵的大小与可选取的单词数目成正比。当可选取的单词数目过多时，模型需要学习更多的参数，导致模型的参数空间变得非常庞大，增加了模型训练的难度和模型的存储需求。
+	
+	3）数据稀疏性增加：当可选取的单词数目过多时，训练数据中每个单词的出现频率可能会变得非常低，导致数据的稀疏性增加。这会使得模型难以准确地估计每个单词的概率分布，可能导致模型的预测性能下降。
+	
+	4）模型泛化能力下降：当可选取的单词数目过多时，模型可能会过于依赖训练数据中出现频率较高的单词，而忽略了其他单词的特征。这会导致模型的泛化能力下降，对于训练数据中未出现或出现频率较低的单词的预测效果较差。
+	
+	因此，在使用 softmax 回归进行下一个单词的预测时，需要权衡可选取的单词数目，选择适当的单词数量以平衡计算复杂度、参数空间、数据稀疏性和模型泛化能力。
+	
+\end{document}

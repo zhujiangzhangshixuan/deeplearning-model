@@ -1,0 +1,169 @@
+\documentclass[UTF8]{ctexart}
+\usepackage[textwidth=444bp,vmargin=2.5cm]{geometry}
+%\usepackage{abstract} %生成摘要使用的宏包
+\usepackage[colorlinks,linkcolor=black,anchorcolor=black,citecolor=black]{hyperref} %“colorlinks”的意思是将超链接以颜色来标识，而并非使用默认的方框来标识。linkcolor，anchorcolor, citecolor分别表示用来标识link, anchor, cite等各种链接的颜色。此处我们均设为黑色。
+\usepackage{fancyhdr} %插入页脚的宏包
+\usepackage{graphicx}%图片宏包
+\usepackage{float}
+\graphicspath{{./figure/}}
+\DeclareGraphicsExtensions{.pdf,.jpeg,.png,.jpg}%在添加图片后只需要图片的名字，而不需要拓展名
+\usepackage{subfigure}%并列插入图片
+\usepackage{amsmath}%公式宏包
+\usepackage[T1]{fontenc}% 统一修改正文和数学字体为Adobe Utopia， 这个字体和Times有些像
+\usepackage{newtxtext, newtxmath}  %两种使用Times New Roman 字体的方法
+\linespread{1.5}%设置行间距为1.5倍行距
+\renewcommand{\abstractname}{\Large\textbf{摘要}}
+\usepackage{appendix}%加入附录需使用appendix宏包
+\usepackage{listings}%插入代码
+\usepackage{xcolor}
+
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{makecell}
+\usepackage{bm}
+\usepackage{pythonhighlight}
+\usepackage{ctex}
+\usepackage[linesnumbered,ruled]{algorithm2e}
+\ctexset{
+	% 修改 section。
+	section={   
+		name={,、},
+		number={\chinese{section}}
+	}
+}
+\ctexset{
+	% 修改 section。
+	section={   
+		name={,、},
+		number={\chinese{section}},
+		aftername=\hspace{1pt}
+	}
+}
+\usepackage{enumitem}
+\usepackage{tabularx}
+%\usepackage{setspace}%使用间距宏包
+
+\begin{document}    %文档的开始，一定要有文档的结束，才能生效
+	\setlength{\abovedisplayskip}{2pt}
+	\setlength{\belowdisplayskip}{2pt}
+	\setlength{\abovedisplayshortskip}{2pt}
+	\setlength{\belowdisplayshortskip}{2pt}
+	%------------------------标题-------------------------
+	%\begin{titlepage}%使页码跳过这页
+	\begin{center}
+		\heiti\zihao{3}\textbf{3.2 \, 线性回归从零开始重点摘录与练习解答} %标题3号加粗
+		\vspace{2ex}
+	\end{center}
+	
+	
+	%\end{titlepage}
+	%-------------------------正文部分-------------------------
+	%修改页眉页脚
+	\pagestyle{fancy}
+	\lhead{}
+	\chead{}
+	\rhead{}
+	%\lfoot{}
+	\cfoot{\thepage}
+	%\rfoot{} %空格即表示空白
+	\renewcommand{\headrulewidth}{0pt}
+	\renewcommand{\footrulewidth}{0pt} %设置页眉页脚分割线的宽度，如果为0pt,则不显示线条
+	
+	\textbf{（1） 参数更新}
+	
+	我们将执行以下循环：
+	\begin{itemize}
+		\item 初始化参数
+		\item 重复以下训练，直到完成
+		
+		计算梯度
+		\[
+		\mathbf{g} \leftarrow \partial_{(\mathbf{w},b)} \frac{1}{|\mathcal{B}|} \sum_{i \in \mathcal{B}} l(\mathbf{x}^{(i)}, y^{(i)}, \mathbf{w}, b)
+		\]
+		
+		更新参数
+		\[
+		(\mathbf{w}, b) \leftarrow (\mathbf{w}, b) - \eta \mathbf{g}
+		\]
+	\end{itemize}
+	
+	\textbf{（2） 问题解答}
+	
+	\textbf{1、如果我们将权重初始化为零，会发生什么。算法仍然有效吗？}
+	
+	\noindent \textbf{解}：在线性回归中，由于只有一层神经网络，且SGD过程中，梯度求导后结果与参数本身无关，而是取决于输入 $\bm{X}$ 和 $y$，因此，可以将权重初始化为0，算法仍然有效，在代码部分有实践。
+		
+	但是，在多层神经网络中，如果将权重初始化为0，或者其他统一的常量，会导致后面迭代的权重更新相同，并且神经网络中的激活单元的值相同，输出的梯度也相等，导致对称性问题，无法进行独立学习，找到最优解。
+	
+	\textbf{4、计算二阶导数时可能会遇到什么问题？这些问题可以如何解决？}
+	
+	\noindent \textbf{解}：二阶导数包含了更多关于损失函数曲率的信息，因此在某些情况下，计算二阶导数可能有助于更快地收敛和更准确的更新。
+		
+	以下是计算二阶导数时可能会遇到的问题，以及可能的解决方法：
+	\begin{enumerate}
+		\item 计算复杂度高：计算Hessian矩阵需要更多计算资源和时间，尤其是大规模数据和复杂模型
+		
+		解决方法： 通常可以使用近似方法来估计二阶导数，例如L-BFGS（Limited-memory Broyden-Fletcher-Goldfarb-Shanno）等优化算法。这些方法在一定程度上降低了计算成本，同时仍能提供较好的优化效果。
+		\item 存储需求大：Hessian矩阵存储需求随着参数数量的增加而增加，可能导致内存不足的问题
+		
+		解决方法： 使用一些高效的矩阵近似方法，如块对角近似（block-diagonal approximation）或采样Hessian近似，来减少存储需求。
+		\item 数值不稳定性：在计算Hessian矩阵时，可能会遇到数值不稳定，导致数值误差累积，影响优化结果。
+		
+		解决方法： 使用数值稳定的计算方法，例如通过添加小的正则化项来避免矩阵的奇异性。另外，选择合适的优化算法和学习率调度也可以帮助稳定优化过程。
+		\item 局部极小值和鞍点： 在高维空间中，存在许多局部极小值和鞍点，这可能导致Hessian矩阵的谱值较小，使得计算二阶导数的结果不稳定。
+		
+		解决方法： 使用正则化技术、随机性优化方法（如随机梯度牛顿法）或基于自适应学习率的算法，可以帮助逃离局部极小值和鞍点。
+	\end{enumerate}
+	
+	\textbf{5、为什么在 squared\_loss 函数中需要使用 reshape 函数？}
+	
+	\noindent \textbf{解：} 因为 y\_hat 和 y 的元素个数相同，但 shape 不一定相同（虽然在本节中二者 shape 一致），为了保证计算时不出错，故使用 reshape 函数将二者的 shape 统一。
+	
+	
+	%正文中引用到参考文献的地方\cite{01} \cite{02}
+	%-------------------------附录部分-------------------------
+	% 使用\begin{appendices} \end{appendices} 或者直接用\appendix
+	\appendix
+	%代码格式设置,代码的设置与具体的编程语言有关，比赛时上网搜素即可
+	\definecolor{dkgreen}{rgb}{0,0.6,0}
+	\definecolor{gray}{rgb}{0.5,0.5,0.5}
+	\definecolor{mauve}{rgb}{0.58,0,0.82}
+	\definecolor{mydarkblue}{RGB}{0, 0, 128} % 示例：深蓝色，RGB值为(0, 0, 128) 
+	\definecolor{codegreen}{rgb}{0,0.6,0}
+	\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+	\definecolor{codepurple}{rgb}{0.58,0,0.82}
+	\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+	\lstset{ %
+		language=Python,                % the language of the code
+		basicstyle=\footnotesize,           % the size of the fonts that are used for the code
+		numbers=left,                   % where to put the line-numbers
+		numberstyle=\tiny\color{gray},  % the style that is used for the line-numbers
+		stepnumber=2,                   % the step between two line-numbers. If it's 1, each line 
+		% will be numbered
+		numbersep=5pt,                  % how far the line-numbers are from the code
+		backgroundcolor=\color{white},      % choose the background color. You must add \usepackage{color}
+		showspaces=false,               % show spaces adding particular underscores
+		showstringspaces=false,         % underline spaces within strings
+		showtabs=false,                 % show tabs within strings adding particular underscores
+		frame=single,                   % adds a frame around the code
+		rulecolor=\color{black},        % if not set, the frame-color may be changed on line-breaks within not-black text (e.g. commens (green here))
+		tabsize=2,                      % sets default tabsize to 2 spaces
+		captionpos=b,                   % sets the caption-position to bottom
+		breaklines=true,                % sets automatic line breaking
+		breakatwhitespace=false,        % sets if automatic breaks should only happen at whitespace
+		title=\lstname,                   % show the filename of files included with \lstinputlisting;
+		% also try caption instead of title
+		keywordstyle=\color{blue},          % keyword style
+		commentstyle=\color{codegreen},       % comment style
+		stringstyle=\color{codepurple},         % string literal style
+		escapeinside={\%*}{*)},            % if you want to add LaTeX within your code
+		morekeywords={*,...}               % if you want to add more keywords to the set
+	}
+	
+	
+	
+	
+	
+\end{document}

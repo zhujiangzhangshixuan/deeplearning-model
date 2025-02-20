@@ -1,0 +1,274 @@
+\documentclass[UTF8]{ctexart}
+\usepackage[textwidth=444bp,vmargin=2.5cm]{geometry}
+%\usepackage{abstract} %生成摘要使用的宏包
+\usepackage[colorlinks,linkcolor=black,anchorcolor=black,citecolor=black]{hyperref} %“colorlinks”的意思是将超链接以颜色来标识，而并非使用默认的方框来标识。linkcolor，anchorcolor, citecolor分别表示用来标识link, anchor, cite等各种链接的颜色。此处我们均设为黑色。
+\usepackage{fancyhdr} %插入页脚的宏包
+\usepackage{graphicx}%图片宏包
+\usepackage{float}
+\graphicspath{{./figure/}}
+\DeclareGraphicsExtensions{.pdf,.jpeg,.png,.jpg}%在添加图片后只需要图片的名字，而不需要拓展名
+\usepackage{subfigure}%并列插入图片
+\usepackage{amsmath}%公式宏包
+\usepackage[T1]{fontenc}% 统一修改正文和数学字体为Adobe Utopia， 这个字体和Times有些像
+\usepackage{newtxtext, newtxmath}  %两种使用Times New Roman 字体的方法
+\linespread{1.5}%设置行间距为1.5倍行距
+\renewcommand{\abstractname}{\Large\textbf{摘要}}
+\usepackage{appendix}%加入附录需使用appendix宏包
+\usepackage{listings}%插入代码
+\usepackage{xcolor}
+
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{makecell}
+\usepackage{bm}
+\usepackage{pythonhighlight}
+\usepackage{ctex}
+\usepackage[linesnumbered,ruled]{algorithm2e}
+\ctexset{
+	% 修改 section。
+	section={   
+		name={,、},
+		number={\chinese{section}}
+	}
+}
+\ctexset{
+	% 修改 section。
+	section={   
+		name={,、},
+		number={\chinese{section}},
+		aftername=\hspace{1pt}
+	}
+}
+\usepackage{enumitem}
+\usepackage{tabularx}
+%\usepackage{setspace}%使用间距宏包
+
+\begin{document}    %文档的开始，一定要有文档的结束，才能生效
+	\setlength{\abovedisplayskip}{2pt}
+	\setlength{\belowdisplayskip}{2pt}
+	\setlength{\abovedisplayshortskip}{2pt}
+	\setlength{\belowdisplayshortskip}{2pt}
+	%------------------------标题-------------------------
+	%\begin{titlepage}%使页码跳过这页
+	\begin{center}
+		\heiti\zihao{3}\textbf{3.1 \, 线性回归重点摘录与练习解答} %标题3号加粗
+		\vspace{2ex}
+	\end{center}
+	
+	
+	%\end{titlepage}
+	%-------------------------正文部分-------------------------
+	%修改页眉页脚
+	\pagestyle{fancy}
+	\lhead{}
+	\chead{}
+	\rhead{}
+	%\lfoot{}
+	\cfoot{\thepage}
+	%\rfoot{} %空格即表示空白
+	\renewcommand{\headrulewidth}{0pt}
+	\renewcommand{\footrulewidth}{0pt} %设置页眉页脚分割线的宽度，如果为0pt,则不显示线条
+	
+	\textbf{（1） 线性模型}
+	
+	对于高维数据集，建模时采用线性代数表示法会比较方便。当我们的输入包含 $d$ 个特征时，我们将预测结果 $\hat{y}$ （通常使用 “尖角” 符号表示 $y$ 的估计值）表示为：
+	$$
+	\hat{y} = w_1 x_1 + \ldots + w_d x_d + b.
+	$$
+	
+	将所有特征放到向量 $\bm{x} \in \mathbb{R}^d$ 中，并将所有权重放到向量 $\bm{w} \in \mathbb{R}^d$ 中，我们可以用点积形式来简洁地表达模型：
+	$$
+	\hat{y} = \bm{w}^\top \bm{x} + b.
+	$$
+	
+	对于 $y$ 也是高维的情况，设特征集合 $\bm{X}$，预测值 $\hat{\bm{y}} \in \bm{R}^n$ 可以通过矩阵-向量乘法表示为：
+	$$
+	\hat{\bm{y}} = \bm{X} \bm{w} + b
+	$$
+	这个过程中的求和将使用在2.1.3节中有详细介绍的广播机制。给定训练数据特征 $\bm{X}$ 和对应的已知标签 $\bm{y}$，线性回归的目标是找到一组权重向量 $\bm{w}$ 和偏置 $b$：当给定从 $\bm{X}$ 的同分布中取样的新样本特征时，这组权重向量和偏置能够使得新样本预测标签的误差尽可能小。
+	
+	\textbf{（2） 平方损失函数}
+	
+	当样本 $ i $ 的预测值为 $\hat{y}^{(i)}$，其相应的真实标签为 $ y^{(i)} $ 时，平方误差可以定义为以下公式：
+    \[
+    l^{(i)}(\bm{w}, b) = \frac{1}{2} \left( \hat{y}^{(i)} - y^{(i)} \right)^2.
+    \]
+    
+    为了度量模型在整个数据集上的质量，我们需要计算在训练集 $ n $ 个样本上的损失均值（也等价于求和）：
+    $$
+    L(\bm{w}, b) = \frac{1}{n} \sum_{i=1}^{n} l^{(i)}(\bm{w}, b) = \frac{1}{n} \sum_{i=1}^{n} \frac{1}{2} \left( \bm{w}^\top \bm{x}^{(i)} + b - y^{(i)} \right)^2.
+    $$
+	
+	在训练模型时，我们希望寻找一组参数 $(\bm{w}^*, b^*)$，这组参数能最小化在所有训练样本上的总损失。如下式：
+	$$
+	\bm{w}^*, b^* = \arg \min_{\bm{w}, b} L(\bm{w}, b).
+	$$
+	
+	\textbf{（3） 解析解}
+	
+	我们的预测问题是最小化 $\|\bm{y} - \bm{X}\bm{w}\|^2$，将损失关于 $\bm{w}$ 的导数设为0，即为 $\displaystyle \frac{\partial l}{\partial \bm{w}} = 0$ 时，
+	$$
+	\displaystyle
+	\frac{\partial \| \bm{y} - \bm{X} \bm{w} \|^2}{\partial \bm{w}}
+	= \frac{\partial \frac{1}{2} (\bm{y} - \bm{X} \bm{w})^2}{\partial \bm{w}}
+	= (\bm{y} - \bm{X} \bm{w}^*) (-\bm{X}^\top) = 0
+	$$
+	得到解析解：
+	$$
+	\displaystyle
+	\bm{w}^* = (\bm{X}^\top \bm{X})^{-1} \bm{X}^\top \bm{y}.
+	$$
+	
+	\textbf{（4） 随机梯度下降}
+	
+	随机度下降最简单的用法是计算损失函数（数据集中所有样本的损失均值）关于模型参数的导数（在这里也可以称为梯度）。但实际中的执行可能会非常慢：因为在每一次更新参数之前，我们必须遍历整个数据集。因此，我们通常会在每次需要计算更新的时候随机抽取一小批样本，这种变体叫做小批量随机梯度下降（minibatch stochastic gradient descent）。
+	
+	在每次迭代中，我们首先随机抽样一个小批量 $\mathcal{B}$，它是由固定数量的训练样本组成的。然后，我们计算小批量的平均损失关于模型参数的导数（也可以称为梯度）。最后，我们将梯度乘以一个预先确定的正数 $\eta$，并从当前参数的值中减掉。
+	$$
+	(\bm{w}, b) \leftarrow (\bm{w}, b) - \frac{\eta}{|\mathcal{B}|} \sum_{i \in \mathcal{B}} \partial_{(\bm{w}, b)} l^{(i)}(\bm{w}, b).
+	$$
+	总结一下可知算法的步骤如下：
+	\begin{enumerate}
+		\item 初始化模型参数的值，如随机初始化；
+		\item 从数据集中随机抽取小批量样本且在负梯度的方向上更新参数，并不断迭代这一步骤。对于平方损失和仿射变换。
+	\end{enumerate}
+	我们可以明确地写成如下形式:
+	$$
+	\bm{w} \leftarrow \bm{w} - \frac{\eta}{|\mathcal{B}|} \sum_{i \in \mathcal{B}} \partial_{\bm{w}} l^{(i)}(\bm{w}, b) = \bm{w} - \frac{\eta}{|\mathcal{B}|} \sum_{i \in \mathcal{B}} \bm{x}^{(i)} \left( \bm{w}^\top \bm{x}^{(i)} + b - y^{(i)} \right),
+	$$
+	
+	$$
+	b \leftarrow b - \frac{\eta}{|\mathcal{B}|} \sum_{i \in \mathcal{B}} \partial_b l^{(i)}(\bm{w}, b) = b - \frac{\eta}{|\mathcal{B}|} \sum_{i \in \mathcal{B}} \left( \bm{w}^\top \bm{x}^{(i)} + b - y^{(i)} \right).
+	$$
+	
+	
+	\, 
+	
+	
+	\textbf{（5） 问题解答}
+	
+	\textbf{1、假设有一些数据$x_1, \ldots, x_n \in \mathbb{R}$。目标是找到一个常数$b$，使得最小化$\sum_i (x_i - b)^2$，找到最优值$b$的解析解，这个问题及其解与正态分布有什么关系?}
+	
+	\noindent {\textbf{解}：即求
+	\[
+	b^* = \arg \min \sum_i (x_i - b)^2
+	\] 
+	
+	令
+	\[
+	\frac{\partial \sum_i (x_i - b)^2}{\partial b} = 0
+	\]
+	
+	即 $2 \sum_i (x_i - b^*) = 0$，故
+	\[
+	 b^* = \frac{1}{n} \sum_i x_i.
+	\]
+    }
+	
+	我们先求取样本关于参数 $b$ 的极大似然估计，令 $ x_i = b + \epsilon $，其中$\epsilon \sim \mathcal{N}(0, \sigma^2)$，则似然函数为：
+	\[
+	L(x \mid b) = (2\pi\sigma^2)^{-\frac{n}{2}} \exp\left( -\frac{1}{2\sigma^2} \sum_{i=1}^n (x_i - b)^2 \right)
+	\]
+	
+	因此对数似然函数为：
+	\[
+	-l(x \mid b)= -\log L(x \mid b) = \frac{n}{2} \log(2\pi\sigma^2) + \sum_{i=1}^n \frac{1}{2\sigma^2} (x_i - b)^2
+	\]
+	
+	若求 $\arg \max_b L(x \mid b)$，即求 $\arg \min_b -l(x \mid b)$.根据数理统计写出似然方程可知：
+	\[
+	b^* = \frac{1}{n} \sum_{i=1}^n x_i.
+	\]
+	
+	也即求上一问题的解析解。因此，在高斯噪声的假设下，最小化均方误差等价于对线性模型的极大似然估计。
+	
+	
+	\textbf{2、推导出使用平方误差的线性回归优化问题的解析解。为了简化问题，可以忽略偏置$b$（我们可以通过向$\mathbf X$添加所有值为1的一列来做到这一点）。}
+		
+	\noindent {\textbf{解}}：这里只给出部分问题的解答，首先对用矩阵和向量表示法写出优化问题（将所有数据视为单个矩阵，将所有目标值视为单个向量）。
+	$$
+	\hat{\bm{Y}}_{n,q} = \bm{X}_{n,d+1} \bm{w}_{d+1,q}
+	$$
+	
+	然后是计算损失对 $ w $ 的梯度：
+	$$
+	L = \frac{1}{2} (\bm{Y} - \hat{\bm{Y}})^2
+	$$
+	$$
+	\frac{\partial L}{\partial \bm{w}} = \frac{\partial \frac{1}{2} (\bm{Y} - \bm{X} \bm{w})^2}{\partial \bm{w}} = (\bm{Y} - \bm{X} \bm{w})(-\bm{X}^\top)
+	$$
+	
+	第三个小问是通过将梯度设为 0、求解矩阵方程来找到解析解。
+	$$
+	(\bm{Y} - \bm{X} \bm{w})(-\bm{X}^\top) = 0
+	$$
+	$$
+	-\bm{X}^\top \bm{Y} + \bm{X}^\top \bm{X} \bm{w} = 0
+	$$
+	
+	可得解析解表达式为：
+	$$
+	\bm{w}^* = (\bm{X}^\top \bm{X})^{-1} \bm{X}^\top \bm{Y}
+	$$
+	
+	解析解可能比使用随机梯度下降（SGD）更好的情况包括：
+	\begin{enumerate}
+		\item 简单问题：解析解通常适用于简单的问题，其中目标函数和约束条件很容易求导并求解。在这种情况下，直接计算解析解比使用SGD更高效。
+		\item 小规模数据集：对于小规模的数据集，计算解析解可以很快完成，并且由于数据量较小，解析解的计算开销相对较小。
+		\item 显式公式要求：某些应用场景可能要求得到显式的公式解析解，例如需要解释、推导或证明的问题。
+	\end{enumerate}
+	
+	然而，解析解的方法在以下情况下可能会失效：
+	\begin{enumerate}
+		\item 复杂问题：对于复杂的问题，目标函数和约束条件可能很难求导或求解，或者求解过程可能非常复杂甚至不存在解析解。在这种情况下，使用SGD等数值优化算法可能更适合。
+		\item 大规模数据集：对于大规模数据集，计算解析解的计算复杂度可能非常高，甚至无法完成。在这种情况下，SGD通常更具可行性和可扩展性。
+		\item 随机性和噪声：如果目标函数存在随机性或噪声，并且我们希望在优化过程中考虑到这些因素，那么SGD等迭代方法通常更合适，因为它们可以根据采样的随机梯度进行逐步的调整。
+	\end{enumerate}
+
+	%正文中引用到参考文献的地方\cite{01} \cite{02}
+	%-------------------------附录部分-------------------------
+	% 使用\begin{appendices} \end{appendices} 或者直接用\appendix
+	\appendix
+	%代码格式设置,代码的设置与具体的编程语言有关，比赛时上网搜素即可
+	\definecolor{dkgreen}{rgb}{0,0.6,0}
+	\definecolor{gray}{rgb}{0.5,0.5,0.5}
+	\definecolor{mauve}{rgb}{0.58,0,0.82}
+	\definecolor{mydarkblue}{RGB}{0, 0, 128} % 示例：深蓝色，RGB值为(0, 0, 128) 
+	\definecolor{codegreen}{rgb}{0,0.6,0}
+	\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+	\definecolor{codepurple}{rgb}{0.58,0,0.82}
+	\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+	\lstset{ %
+		language=Python,                % the language of the code
+		basicstyle=\footnotesize,           % the size of the fonts that are used for the code
+		numbers=left,                   % where to put the line-numbers
+		numberstyle=\tiny\color{gray},  % the style that is used for the line-numbers
+		stepnumber=2,                   % the step between two line-numbers. If it's 1, each line 
+		% will be numbered
+		numbersep=5pt,                  % how far the line-numbers are from the code
+		backgroundcolor=\color{white},      % choose the background color. You must add \usepackage{color}
+		showspaces=false,               % show spaces adding particular underscores
+		showstringspaces=false,         % underline spaces within strings
+		showtabs=false,                 % show tabs within strings adding particular underscores
+		frame=single,                   % adds a frame around the code
+		rulecolor=\color{black},        % if not set, the frame-color may be changed on line-breaks within not-black text (e.g. commens (green here))
+		tabsize=2,                      % sets default tabsize to 2 spaces
+		captionpos=b,                   % sets the caption-position to bottom
+		breaklines=true,                % sets automatic line breaking
+		breakatwhitespace=false,        % sets if automatic breaks should only happen at whitespace
+		title=\lstname,                   % show the filename of files included with \lstinputlisting;
+		% also try caption instead of title
+		keywordstyle=\color{blue},          % keyword style
+		commentstyle=\color{codegreen},       % comment style
+		stringstyle=\color{codepurple},         % string literal style
+		escapeinside={\%*}{*)},            % if you want to add LaTeX within your code
+		morekeywords={*,...}               % if you want to add more keywords to the set
+	}
+	
+	
+	
+
+
+\end{document}
